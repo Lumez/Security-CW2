@@ -19,7 +19,7 @@ class AdminController extends \Controller {
 		//Check access of user
 		$access = $this->Auth->user('level');
 
-		//No access if not logged in
+		//No access if not logged in or user is not the correct level
 		if(empty($access) || $access < $this->level) {
 			\StatusMessage::add('Access Denied','danger');
 			return $f3->reroute('/');
