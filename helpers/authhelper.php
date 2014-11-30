@@ -24,12 +24,16 @@
 		/** Look up user by username and password and log them in */
 		public function login($username,$password) {
 			$f3=Base::instance();						
-			$db = $this->controller->db;
-			$results = $db->query("SELECT * FROM `users` WHERE `username`='$username' AND `password`='$password'");
-			if (!empty($results)) {		
-				$user = $results[0];	
-				$this->setupSession($user);
-				return $this->forceLogin($user);
+
+			// Load the models and find the user with the username and password provided (framework handles escaping)						
+			$model = $this->controller->Model;
+			$user = $model->Users->fetch(array('username' => $username, 'password' => $password));
+
+			// If a user exists, setup the session and log them in, otherwise abort and return false
+			if (!empty($user)) {
+				$userAsArray = $user->cast();			
+				$this->setupSession($userAsArray);
+				return $this->forceLogin($userAsArray);
 			} 
 			return false;
 		}
