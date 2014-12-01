@@ -22,7 +22,7 @@ $f3->config('config/db.cfg');
 include_once("functions.php");
 
 //Activate session
-new Session();
+//new Session();
 
 //Define homepage 
 $f3->route('GET /','Blog->index');

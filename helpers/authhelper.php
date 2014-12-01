@@ -42,26 +42,31 @@
 		public function logout() {
 			$f3=Base::instance();							
 
-			//Kill the session
+			//Kill the session and clear the cookie
 			session_destroy();
+			setcookie(session_name(),'',time()-3600,'/');
 
 			//Kill the cookie
 			setcookie('RobPress_User','',time()-3600,'/');
+
+			//Start a fresh session
+			session_start();
 		}
 
 		/** Set up the session for the current user */
 		public function setupSession($user) {
-			//Remove previous session
+			//Remove previous session and clear the cookie
 			session_destroy();
+			setcookie(session_name(),'',time()-3600,'/');
 
 			//Setup new session
-			session_id(md5($user['id']));
+			//session_id(sha1($user['created'] . time()));
 
 			//Setup cookie for storing user details and for relogging in
 			setcookie('RobPress_User',base64_encode(serialize($user)),time()+3600*24*30,'/');
 
 			//And begin!
-			new Session();
+			session_start();
 		}
 
 		/** Not used anywhere in the code, for debugging only */
