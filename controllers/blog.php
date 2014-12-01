@@ -107,16 +107,16 @@ class Blog extends Controller {
 			$f3->set('search',$search);
 
 			//Get search results
-			$search = str_replace("*","%",$search); //Allow * as wildcard
-			$ids = $this->db->connection->exec("SELECT id FROM `posts` WHERE `title` LIKE \"%$search%\" OR `content` LIKE '%$search%'");
-			$ids = Hash::extract($ids,'{n}.id');
-			if(empty($ids)) {
+			$queryString = str_replace("*","%",$search); //Allow * as wildcard
+			$queryString = '%'.$queryString.'%'; //Attach wildcards to allow for substring matches
+			$posts = $this->Model->Posts->find(array('title LIKE ? OR content LIKE ?', $queryString, $queryString));
+
+			if(empty($posts)) {
 				StatusMessage::add('No search results found for ' . $search); 
 				return $f3->reroute('/blog/search');
 			}
 
 			//Load associated data
-			$posts = $this->Model->Posts->fetchAll(array('id' => $ids));
 			$blogs = $this->Model->map($posts,'user_id','Users');
 			$blogs = $this->Model->map($posts,array('post_id','Post_Categories','category_id'),'Categories',false,$blogs);
 

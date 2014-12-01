@@ -21,9 +21,6 @@ $f3->config('config/db.cfg');
 //Load global functions
 include_once("functions.php");
 
-//Activate session
-//new Session();
-
 //Define homepage 
 $f3->route('GET /','Blog->index');
 
