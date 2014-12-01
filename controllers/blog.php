@@ -24,7 +24,7 @@ class Blog extends Controller {
 		}
 		$post = $this->Model->Posts->fetch($id);
 		if(empty($post)) {
-			return $f3->route('/');
+			return $f3->reroute('/');
 		}
 		
 		$blog = $this->Model->map($post,'user_id','Users');
