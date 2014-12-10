@@ -156,6 +156,8 @@ CREATE TABLE `users` (
   `displayname` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `tokenexpiry` varchar(255) NOT NULL,
   `level` int(11) NOT NULL DEFAULT '0',
   `created` datetime NOT NULL,
   `bio` text NOT NULL,
@@ -169,7 +171,7 @@ CREATE TABLE `users` (
 --
 
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','Administrator','root@localhost','admin',2,'2000-01-01 00:00:00','I am Administrator!',''),(2,'test','Test','test@test.com','test',2,'2014-11-13 22:23:29','','');
+INSERT INTO `users` VALUES (1,'admin','Administrator','root@localhost','$2a$10$TM8EjxdQqlIwIXWR1U.dxOilitK/2vFRN8qhR5u77R/ZKdgCCpfsG','','', 2,'2000-01-01 00:00:00','I am Administrator!',''),(2,'test','Test','test@test.com','$2a$10$LDaLaICZg3gu7a.dDYTfu.vLF6Og9NCecv3gXn0AGaA1cPRuZ.Jg2','','', 2,'2014-11-13 22:23:29','','');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

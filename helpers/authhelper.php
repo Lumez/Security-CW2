@@ -23,14 +23,17 @@
 
 		/** Look up user by username and password and log them in */
 		public function login($username,$password) {
-			$f3=Base::instance();						
+			$f3=Base::instance();
 
-			// Load the models and find the user with the username and password provided (framework handles escaping)						
+			// Load the bcrypt library
+			$crypt = \Bcrypt::instance();
+
+			// Load the models and find the user with the username provided						
 			$model = $this->controller->Model;
-			$user = $model->Users->fetch(array('username' => $username, 'password' => $password));
+			$user = $model->Users->fetch(array('username' => $username));
 
-			// If a user exists, setup the session and log them in, otherwise abort and return false
-			if (!empty($user)) {
+			// If a user exists and the password is correct, setup the session and log them in, otherwise abort and return false
+			if (!empty($user) && $crypt->verify($password, $user->password)) {
 				$userAsArray = $user->cast();			
 				$this->setupSession($userAsArray);
 				return $this->forceLogin($userAsArray);
