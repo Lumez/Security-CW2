@@ -16,22 +16,57 @@ class User extends Controller {
 	public function add($f3) {
 		if($this->request->is('post')) {
 			extract($this->request->data);
+
+			$audit = \Audit::instance();
 			$check = $this->Model->Users->fetch(array('username' => $username));
+
 			if (!empty($check)) {
 				StatusMessage::add('User already exists','danger');
+			} else if (!$username || strlen($f3->clean($username)) < 3) {
+				StatusMessage::add('Username too short, it must be at least 3 characters long','danger');
+			} else if (!$email || !$audit->email($email)) {
+				StatusMessage::add('Email is invalid','danger');
+			} else if (!$password || strlen($password) < 3) {
+				StatusMessage::add('Password too short, it must be at least 3 characters long','danger');
 			} else if($password != $password2) {
 				StatusMessage::add('Passwords must match','danger');
 			} else {
+				// Load the bcrypt library
+				$crypt = \Bcrypt::instance();
+
+				// Get all post data
+				$post = $f3->get('POST');
+
+				// Generate salt and hash the password
+				$salt = bin2hex(openssl_random_pseudo_bytes(16)); //Generate a 128bit random string
+				$password = $crypt->hash($f3->get('POST.password'), $salt);
+
+				// If hash cannot be generated, the password contains characters that cannot be processed
+				if (!$password) {
+					StatusMessage::add('Password contains illegal characters','danger');
+					return;
+				}
+
+				// Create the new user
 				$user = $this->Model->Users;
-				$user->copyfrom('POST');
+
+				// Clean the names before storing them
+				$user->username = $f3->clean($f3->get('POST.username')); 
+				$user->displayname = $f3->clean($f3->get('POST.displayname'));
+
+				// If there is no display name after cleaning, use the username
+				if(empty($user->displayname)) {
+					$user->displayname = $user->username;
+				}
+
+				$user->email = $f3->get('POST.email');
+				$user->password = $password;
 				$user->created = mydate();
 				$user->bio = '';
 				$user->level = 1;
-				if(empty($displayname)) {
-					$user->displayname = $user->username;
-				}
-				$user->save();	
-				StatusMessage::add('Registration complete','success');
+				$user->save();
+				StatusMessage::add('Registration complete. Welcome, '. $user->username,'success');
+
 				return $f3->reroute('/user/login');
 			}
 		}
@@ -48,6 +83,7 @@ class User extends Controller {
 				} else {
 					$f3->reroute('/');	
 				}
+
 			} else {
 				StatusMessage::add('Invalid username or password','danger');
 			}
