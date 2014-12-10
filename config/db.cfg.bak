@@ -1,5 +1,0 @@
-[globals]
-db[server]=localhost
-db[username]=bjd1g12
-db[password]=YOURPASSWORD
-db[name]=db_bjd1g12
