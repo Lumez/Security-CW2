@@ -157,7 +157,7 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `token` varchar(255) NOT NULL,
-  `tokenexpiry` varchar(255) NOT NULL,
+  `tokenexpiry` datetime NOT NULL,
   `level` int(11) NOT NULL DEFAULT '0',
   `created` datetime NOT NULL,
   `bio` text NOT NULL,

@@ -37,11 +37,8 @@ class Controller {
 		//Extract request data
 		extract($this->request->data);
 
-		//Clean all params
-		$params = $f3->get('PARAMS');
-		foreach ($params as $param => $value) {
-			$params[$param] = $f3->clean($value);
-		}
+		//Clean all params 
+		$params = $f3->clean($f3->get('PARAMS'));
 		$f3->set('PARAMS', $params);
 
 		//Process before route code
