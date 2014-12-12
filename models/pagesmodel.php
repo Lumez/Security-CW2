@@ -36,13 +36,19 @@ class PagesModel {
 
 	/** Load the contents of a page */
 	public function fetch($pagename) {
-		$pagedir = getcwd() . "/pages/";
-		$file = $pagedir . $pagename;
-		if(!file_exists($file)) {
-			$file .= ".html";
+		// Load the possible pages
+		$pages = $this->fetchAll();
+
+		// Convert the name into the title format so it can be seached for
+		$pagetitle = ucfirst(str_replace("_"," ",str_replace(".html","",$pagename)));
+		
+		// If the page requested is one that can be retrieved, get it
+		if(isset($pages[$pagetitle])) { 
+			$pagedir = getcwd() . "/pages/";
+			return file_get_contents($pagedir . $pages[$pagetitle]);
+		} else {
+			return false; 
 		}
-		if(!file_exists($file)) { return false; }
-		return file_get_contents($file);
 	}
 
 	/** Save contents of the page based on title and content field to file */
