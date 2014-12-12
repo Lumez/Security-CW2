@@ -16,8 +16,17 @@
 
 			//Log user back in from cookie
 			if($f3->exists('COOKIE.RobPress_User')) {
-				$user = unserialize(base64_decode($f3->get('COOKIE.RobPress_User')));
-				$this->forceLogin($user);
+				// Load the models and find the user with the token provided						
+				$model = $this->controller->Model;
+				$user = $model->Users->fetch(array('token' => $f3->get('COOKIE.RobPress_User')));
+
+				// If there is a user and the token has not expired, log them in
+				if (!empty($user) && strtotime($user->tokenexpiry) > time()) {
+					return $this->forceLogin($user->cast());
+				}
+
+				// The cookie was not valid so clear it
+				setcookie('RobPress_User', '', time()-3600, '/');
 			}
 		}		
 
@@ -33,10 +42,9 @@
 			$user = $model->Users->fetch(array('username' => $username));
 
 			// If a user exists and the password is correct, setup the session and log them in, otherwise abort and return false
-			if (!empty($user) && $crypt->verify($password, $user->password)) {
-				$userAsArray = $user->cast();			
-				$this->setupSession($userAsArray);
-				return $this->forceLogin($userAsArray);
+			if (!empty($user) && $crypt->verify($password, $user->password)) {		
+				$this->setupSession($user);
+				return $this->forceLogin($user->cast());
 			} 
 			return false;
 		}
@@ -58,15 +66,21 @@
 
 		/** Set up the session for the current user */
 		public function setupSession($user) {
-			//Remove previous session and clear the cookie
+			// Remove previous session and clear the cookie
 			session_destroy();
 			setcookie(session_name(),'',time()-3600,'/');
 
-			//Setup new session
-			//session_id(sha1($user['created'] . time()));
+			// Generate a random 256bit string to use as cookie for relogging in
+			$token = bin2hex(openssl_random_pseudo_bytes(32));
+			$tokenExpiry = time() + 3600 * 24 * 30;
 
-			//Setup cookie for storing user details and for relogging in
-			setcookie('RobPress_User',base64_encode(serialize($user)),time()+3600*24*30,'/');
+			// Store the new token
+			$user->token = $token;
+			$user->tokenexpiry = mydate($tokenExpiry);
+			$user->save();
+
+			// Set the cookie
+			setcookie('RobPress_User', $token, $tokenExpiry, '/');
 
 			//And begin!
 			session_start();
